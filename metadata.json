@@ -1,5 +1,5 @@
 {
   "name": "OZ maze",
-  "description": "",
+  "description": "A polished maze game with haptic feedback, responsive touch controls, and dynamic themes.",
   "requestFramePermissions": []
 }

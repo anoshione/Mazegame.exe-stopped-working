@@ -32,8 +32,8 @@ export default function App() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [hasSavedGame, setHasSavedGame] = useState(false);
   const [showLevelComplete, setShowLevelComplete] = useState(false);
-  const [theme, setTheme] = useState<ThemeId>('slate');
-  const [isDark, setIsDark] = useState(false);
+  const [theme, setTheme] = useState<ThemeId>('orange');
+  const [isDark, setIsDark] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
@@ -524,7 +524,7 @@ export default function App() {
               soundManager.play('swipe');
               setShowSettings(false);
             }}
-            className="absolute inset-0 z-[60] flex items-center justify-center bg-white/70 p-6 cursor-pointer"
+            className="absolute inset-0 z-[60] flex items-center justify-center bg-[var(--theme-bg)]/70 p-6 cursor-pointer"
           >
             <motion.div 
               initial={{ scale: 0.9, y: 20, opacity: 0 }}

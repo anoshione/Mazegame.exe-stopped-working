@@ -356,18 +356,18 @@ export function GameScreen({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 z-50 flex items-center justify-center bg-red-950/70 p-6"
+            className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--theme-bg)]/70 p-6"
           >
             <motion.div 
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.9, y: 20, opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-sm bg-red-50/90 dark:bg-red-950/90 border-2 border-red-200 dark:border-red-800 rounded-[3rem] p-8 sm:p-10 backdrop-blur-[4px] shadow-2xl flex flex-col items-center text-center"
+              className="w-full max-w-sm bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-ui-border)] rounded-[3rem] p-8 sm:p-10 backdrop-blur-[4px] shadow-2xl flex flex-col items-center text-center"
             >
               <div className="flex flex-col items-center justify-center w-full py-2 mb-10">
                 <span className="text-sm font-bold tracking-widest text-red-500 uppercase mb-2">Time's Up!</span>
-                <span className="text-6xl font-mono text-red-800 dark:text-red-200 tracking-widest">00:00</span>
+                <span className="text-6xl font-mono text-[var(--theme-player)] tracking-widest">00:00</span>
               </div>
 
               <div className="flex flex-col w-full gap-4">
@@ -377,7 +377,7 @@ export function GameScreen({
                     soundManager.play('swipe');
                     onRetry();
                   }}
-                  className="flex items-center justify-center gap-2 w-full py-4 bg-white/20 dark:bg-black/20 border-2 border-red-200 dark:border-red-800 rounded-full text-red-900 dark:text-red-100 font-semibold hover:bg-white/40 dark:hover:bg-black/40 transition-all active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-all active:scale-[0.98]"
                 >
                   Retry
                 </button>
