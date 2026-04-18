@@ -22,9 +22,8 @@ interface GameScreenProps {
   isGameOver: boolean;
   onNextMaze: () => void;
   onRetry: () => void;
-  onStartTimeTrial: () => void;
-  onStartNormal: () => void;
   onBackToMenu: () => void;
+  onToggleSettings: () => void;
   hapticsEnabled: boolean;
   isSuccessAnim: boolean;
   hintPath: Position[];
@@ -34,9 +33,8 @@ interface GameScreenProps {
 export function GameScreen({ 
   maze, playerPos, goalPos, trail, time, onMove, cellSize, mazeWidth, mazeHeight, 
   offsetX, offsetY, showLevelComplete, isTimeTrial, isGameOver,
-  onNextMaze, onRetry, onStartTimeTrial, onStartNormal, onBackToMenu, hapticsEnabled, isSuccessAnim, hintPath, isHintActive
+  onNextMaze, onRetry, onBackToMenu, onToggleSettings, hapticsEnabled, isSuccessAnim, hintPath, isHintActive
 }: GameScreenProps) {
-  const [showPausePopup, setShowPausePopup] = useState(false);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -104,13 +102,7 @@ export function GameScreen({
       {/* Top Bar */}
       <div className="absolute top-4 right-4 sm:top-8 sm:right-8 z-20 pointer-events-none">
         <div className="pointer-events-auto flex items-center">
-          <motion.button 
-            whileTap={{ scale: 0.9 }}
-            onClick={() => {
-              if (hapticsEnabled) vibrate('medium');
-              soundManager.play('swipe');
-              setShowPausePopup(true);
-            }}
+          <div 
             className={`text-xl font-mono tracking-widest px-6 h-[42px] flex items-center justify-center bg-[var(--theme-ui-bg)] border-2 rounded-full transition-colors shadow-sm ${
               isTimeTrial && time <= 10 
                 ? 'text-red-600 border-red-400 bg-red-50/30 animate-pulse' 
@@ -118,7 +110,7 @@ export function GameScreen({
             }`}
           >
             {formatTime(time)}
-          </motion.button>
+          </div>
         </div>
       </div>
 
@@ -188,8 +180,12 @@ export function GameScreen({
                   {/* Goal */}
                   {isGoal && (
                     <motion.div 
-                      className="absolute inset-[12%] rounded-md"
-                      style={{ backgroundColor: 'var(--theme-goal)', boxShadow: '0 0 20px var(--theme-goal-shadow)' }}
+                      className="absolute rounded-[15%]"
+                      style={{ 
+                        backgroundColor: 'var(--theme-goal)', 
+                        boxShadow: '0 0 20px var(--theme-goal-shadow)',
+                        inset: `calc(15% - 1px)`
+                      }}
                       animate={isSuccessAnim ? { scale: [1, 1.5, 2], opacity: [1, 0.5, 0] } : { scale: 1, opacity: 1 }}
                       transition={isSuccessAnim ? { duration: 0.6, ease: "easeOut" } : { duration: 0 }}
                     />
@@ -256,92 +252,6 @@ export function GameScreen({
                   <Home size={20} />
                   Main Menu
                 </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Pause/Options Popup */}
-      <AnimatePresence>
-        {showPausePopup && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={() => {
-              if (hapticsEnabled) vibrate('light');
-              soundManager.play('swipe');
-              setShowPausePopup(false);
-            }}
-            className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--theme-bg)]/70 p-6 cursor-pointer"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-ui-border)] rounded-[3rem] p-8 sm:p-10 backdrop-blur-[4px] shadow-2xl flex flex-col items-center text-center relative cursor-default"
-            >
-              <div className="flex flex-col items-center justify-center w-full py-2 mb-10">
-                <span className="text-4xl font-mono text-[var(--theme-player)] tracking-widest">{formatTime(time)}</span>
-              </div>
-
-              <div className="flex flex-col w-full gap-4">
-                <motion.button 
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    if (hapticsEnabled) vibrate('heavy');
-                    soundManager.play('swipe');
-                    onRetry();
-                    setShowPausePopup(false);
-                  }}
-                  className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-colors"
-                >
-                  Retry
-                </motion.button>
-                <motion.button 
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    if (hapticsEnabled) vibrate('heavy');
-                    soundManager.play('swipe');
-                    onNextMaze();
-                    setShowPausePopup(false);
-                  }}
-                  className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-colors"
-                >
-                  New Maze
-                </motion.button>
-                <motion.button 
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    if (hapticsEnabled) vibrate('medium');
-                    soundManager.play('swipe');
-                    if (isTimeTrial) {
-                      onStartNormal();
-                    } else {
-                      onStartTimeTrial();
-                    }
-                    setShowPausePopup(false);
-                  }}
-                  className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-colors"
-                >
-                  {isTimeTrial ? 'Normal' : 'Time Trial'}
-                </motion.button>
-                <motion.button 
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    if (hapticsEnabled) vibrate('heavy');
-                    soundManager.play('swipe');
-                    onBackToMenu();
-                    setShowPausePopup(false);
-                  }}
-                  className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-colors"
-                >
-                  Main Menu
-                </motion.button>
               </div>
             </motion.div>
           </motion.div>

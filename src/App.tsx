@@ -7,7 +7,7 @@ import { GameScreen } from './components/GameScreen';
 import { BackgroundMaze } from './components/BackgroundMaze';
 import { motion, AnimatePresence } from 'motion/react';
 import { vibrate } from './utils/vibrate';
-import { X, Lightbulb, Menu, RefreshCw } from 'lucide-react';
+import { Lightbulb, Menu } from 'lucide-react';
 import { ThemeSelector } from './components/ThemeSelector';
 import { solveMaze } from './utils/maze';
 import { ThemeId, getThemeColors } from './utils/themes';
@@ -88,14 +88,14 @@ export default function App() {
 
   const { w, h } = DIFFICULTY_MAP[difficulty];
   const maxCellWidth = windowSize.w / (w + 2);
-  const maxCellHeight = windowSize.h / (h + 10); // Extra padding for header/footer
-  const cellSize = Math.max(10, Math.floor(Math.min(maxCellWidth, maxCellHeight)));
+  const maxCellHeight = (windowSize.h - 220) / (h + 2); // Increased padding for header/bottom UI
+  const cellSize = Math.max(8, Math.floor(Math.min(maxCellWidth, maxCellHeight)));
 
   const mazeWidth = w * cellSize;
   const mazeHeight = h * cellSize;
 
   const offsetX = Math.floor((windowSize.w - mazeWidth) / 2);
-  const offsetY = Math.floor((windowSize.h - mazeHeight) / 2);
+  const offsetY = Math.max(80, Math.floor((windowSize.h - mazeHeight) / 2 - 20)); // Shifted up slightly
 
   const handleDifficultyChange = (newDifficulty: Difficulty) => {
     setDifficulty(newDifficulty);
@@ -103,14 +103,17 @@ export default function App() {
   };
 
   const startNewGame = () => {
-    const { w, h } = DIFFICULTY_MAP[difficulty];
+    const { w, h, limit } = DIFFICULTY_MAP[difficulty];
     const newMaze = generateMaze(w, h);
     setMaze(newMaze);
     setPlayerPos({ x: 0, y: 0 });
     setGoalPos({ x: w - 1, y: h - 1 });
     setTrail([{ x: 0, y: 0 }]);
-    setTime(0);
-    setIsTimeTrial(false);
+    if (isTimeTrial) {
+      setTime(limit);
+    } else {
+      setTime(0);
+    }
     setIsGameOver(false);
     setIsPlaying(true);
     setHasSavedGame(true);
@@ -120,6 +123,22 @@ export default function App() {
     setIsHintActive(false);
     setScreen('playing');
     window.history.pushState({ screen: 'playing' }, '');
+  };
+
+  const handleToggleTimer = () => {
+    const next = !isTimeTrial;
+    setIsTimeTrial(next);
+    if (next) {
+      setTime(DIFFICULTY_MAP[difficulty].limit);
+    } else {
+      setTime(0);
+    }
+    if (isPlaying && screen === 'playing') {
+      setPlayerPos({ x: 0, y: 0 });
+      setTrail([{ x: 0, y: 0 }]);
+      setIsGameOver(false);
+      setIsSuccessAnim(false);
+    }
   };
 
   const nextMaze = () => {
@@ -157,28 +176,6 @@ export default function App() {
     } else {
       setTime(0);
     }
-    setIsGameOver(false);
-    setIsPlaying(true);
-    setShowLevelComplete(false);
-    setIsSuccessAnim(false);
-  };
-
-  const startTimeTrial = () => {
-    setIsTimeTrial(true);
-    setTime(DIFFICULTY_MAP[difficulty].limit);
-    setPlayerPos({ x: 0, y: 0 });
-    setTrail([{ x: 0, y: 0 }]);
-    setIsGameOver(false);
-    setIsPlaying(true);
-    setShowLevelComplete(false);
-    setIsSuccessAnim(false);
-  };
-
-  const startNormalGame = () => {
-    setIsTimeTrial(false);
-    setTime(0);
-    setPlayerPos({ x: 0, y: 0 });
-    setTrail([{ x: 0, y: 0 }]);
     setIsGameOver(false);
     setIsPlaying(true);
     setShowLevelComplete(false);
@@ -338,12 +335,15 @@ export default function App() {
         <ThemeSelector currentTheme={theme} onSelectTheme={setTheme} isDark={isDark} onToggleDark={() => setIsDark(!isDark)} hapticsEnabled={hapticsEnabled} />
       </div>
 
-      <div className="absolute bottom-10 sm:bottom-16 flex items-center justify-center w-full z-30 pointer-events-none pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-center gap-2 px-4 py-1.5 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full shadow-sm pointer-events-auto" style={{ backdropFilter: 'blur(4px)' }}>
+      <div 
+        className={`absolute bottom-10 sm:bottom-16 flex items-center justify-center w-full z-30 pointer-events-none pb-[env(safe-area-inset-bottom)] transition-all duration-300 ${(showLevelComplete || isGameOver) ? 'opacity-25 grayscale' : 'opacity-100'}`}
+      >
+        <div className={`flex items-center gap-2 px-4 py-1.5 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full shadow-sm ${(showLevelComplete || isGameOver) ? 'pointer-events-none' : 'pointer-events-auto'}`} style={{ backdropFilter: 'blur(4px)' }}>
           <motion.button 
             whileTap={{ scale: 0.9 }}
             onClick={handleHelpOrHint}
-            className="p-2 text-[var(--theme-player)] hover:opacity-80 transition-colors"
+            disabled={showLevelComplete || isGameOver}
+            className="p-2 text-[var(--theme-player)] hover:opacity-80 transition-colors disabled:pointer-events-none"
           >
             <Lightbulb size={22} />
           </motion.button>
@@ -351,7 +351,8 @@ export default function App() {
           <motion.button 
             whileTap={{ scale: 0.9 }}
             onClick={() => { if (hapticsEnabled) vibrate('medium'); soundManager.play('swipe'); setShowSettings(true); }}
-            className="p-2 text-[var(--theme-player)] hover:opacity-80 transition-colors"
+            disabled={showLevelComplete || isGameOver}
+            className="p-2 text-[var(--theme-player)] hover:opacity-80 transition-colors disabled:pointer-events-none"
           >
             <Menu size={22} />
           </motion.button>
@@ -403,8 +404,6 @@ export default function App() {
               isGameOver={isGameOver}
               onNextMaze={nextMaze}
               onRetry={retryMaze}
-              onStartTimeTrial={startTimeTrial}
-              onStartNormal={startNormalGame}
               onBackToMenu={() => {
                 setScreen('menu');
                 setIsPlaying(false);
@@ -413,6 +412,7 @@ export default function App() {
                   window.history.replaceState({ screen: 'menu' }, '');
                 }
               }}
+              onToggleSettings={() => setShowSettings(true)}
               hapticsEnabled={hapticsEnabled}
               isSuccessAnim={isSuccessAnim}
               hintPath={hintPath}
@@ -536,7 +536,27 @@ export default function App() {
             >
               <h2 className="text-2xl font-bold mb-8 text-[var(--theme-text-main)]">Options</h2>
 
-              <div className="flex flex-col items-center w-full gap-6 mt-4">
+              <div className="flex flex-col items-center w-full gap-5">
+                <div className="flex items-center justify-between w-48">
+                  <span className="text-lg font-medium text-[var(--theme-player)]">Time Trial</span>
+                  <button 
+                    onClick={() => {
+                      if (hapticsEnabled) vibrate('medium');
+                      soundManager.play('swipe');
+                      handleToggleTimer();
+                    }}
+                    className="w-14 h-8 flex items-center rounded-full p-1 transition-all border-2 bg-[var(--theme-ui-bg)] border-[var(--theme-player)] hover:bg-[var(--theme-ui-hover)]"
+                  >
+                    <motion.div 
+                      layout
+                      className="w-5 h-5 rounded-full shadow-sm"
+                      style={{ backgroundColor: isTimeTrial ? 'var(--theme-player)' : 'var(--theme-text-muted)' }}
+                      animate={{ x: isTimeTrial ? 24 : 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    />
+                  </button>
+                </div>
+
                 <div className="flex items-center justify-between w-48">
                   <span className="text-lg font-medium text-[var(--theme-player)]">Sound</span>
                   <button 
@@ -580,6 +600,55 @@ export default function App() {
                   </button>
                 </div>
 
+                {screen === 'playing' && (
+                  <>
+                    <div className="w-full flex items-center gap-4 my-2">
+                      <div className="flex-1 h-px bg-[var(--theme-player)] opacity-20" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--theme-player)] opacity-30" />
+                      <div className="flex-1 h-px bg-[var(--theme-player)] opacity-20" />
+                    </div>
+
+                    <div className="flex flex-col w-full gap-3 px-4">
+                      <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          if (hapticsEnabled) vibrate('heavy');
+                          soundManager.play('swipe');
+                          retryMaze();
+                          setShowSettings(false);
+                        }}
+                        className="flex items-center justify-center gap-2 w-full py-3 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-colors"
+                      >
+                        Retry
+                      </motion.button>
+                      <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          if (hapticsEnabled) vibrate('heavy');
+                          soundManager.play('swipe');
+                          nextMaze();
+                          setShowSettings(false);
+                        }}
+                        className="flex items-center justify-center gap-2 w-full py-3 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-colors"
+                      >
+                        New Maze
+                      </motion.button>
+                      <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          if (hapticsEnabled) vibrate('heavy');
+                          soundManager.play('swipe');
+                          setScreen('menu');
+                          setIsPlaying(false);
+                          setShowSettings(false);
+                        }}
+                        className="flex items-center justify-center gap-2 w-full py-3 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-colors"
+                      >
+                        Main Menu
+                      </motion.button>
+                    </div>
+                  </>
+                )}
               </div>
             </motion.div>
           </motion.div>
