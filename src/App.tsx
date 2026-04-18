@@ -89,7 +89,7 @@ export default function App() {
 
   const { w, h } = DIFFICULTY_MAP[difficulty];
   const maxCellWidth = windowSize.w / (w + 2);
-  const maxCellHeight = windowSize.h / (h + 6); // Extra padding for header/footer
+  const maxCellHeight = windowSize.h / (h + 10); // Extra padding for header/footer
   const cellSize = Math.max(10, Math.floor(Math.min(maxCellWidth, maxCellHeight)));
 
   const mazeWidth = w * cellSize;
@@ -323,7 +323,7 @@ export default function App() {
   } as React.CSSProperties;
 
   return (
-    <div className="w-full h-screen font-sans overflow-hidden relative transition-colors duration-500" style={{ ...cssVars, backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text-main)' }}>
+    <div className="w-full h-[100dvh] font-sans overflow-hidden relative transition-colors duration-500" style={{ ...cssVars, backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text-main)' }}>
       <BackgroundMaze 
         cellSize={cellSize} 
         difficulty={difficulty} 
@@ -337,7 +337,7 @@ export default function App() {
         <ThemeSelector currentTheme={theme} onSelectTheme={setTheme} isDark={isDark} onToggleDark={() => setIsDark(!isDark)} hapticsEnabled={hapticsEnabled} />
       </div>
 
-      <div className="absolute bottom-8 flex items-center justify-center w-full z-30 pointer-events-none">
+      <div className="absolute bottom-10 sm:bottom-16 flex items-center justify-center w-full z-30 pointer-events-none pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center gap-2 px-4 py-1.5 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full shadow-sm pointer-events-auto" style={{ backdropFilter: 'blur(4px)' }}>
           <motion.button 
             whileTap={{ scale: 0.9 }}
