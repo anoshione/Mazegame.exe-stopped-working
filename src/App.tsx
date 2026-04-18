@@ -6,21 +6,20 @@ import { MenuScreen } from './components/MenuScreen';
 import { GameScreen } from './components/GameScreen';
 import { BackgroundMaze } from './components/BackgroundMaze';
 import { motion, AnimatePresence } from 'motion/react';
-import { useWebHaptics } from 'web-haptics/react';
+import { vibrate } from './utils/vibrate';
 import { X, Lightbulb, Menu, RefreshCw } from 'lucide-react';
 import { ThemeSelector } from './components/ThemeSelector';
 import { solveMaze } from './utils/maze';
 import { ThemeId, getThemeColors } from './utils/themes';
 
 const DIFFICULTY_MAP: Record<Difficulty, { w: number; h: number; limit: number }> = {
-  Easy: { w: 10, h: 15, limit: 20 },
-  Medium: { w: 15, h: 22, limit: 45 },
-  Hard: { w: 20, h: 30, limit: 90 },
-  Expert: { w: 25, h: 37, limit: 180 },
+  Easy: { w: 10, h: 15, limit: 15 },
+  Medium: { w: 15, h: 22, limit: 25 },
+  Hard: { w: 20, h: 30, limit: 40 },
+  Expert: { w: 25, h: 37, limit: 95 },
 };
 
 export default function App() {
-  const haptic = useWebHaptics();
   const [screen, setScreen] = useState<'menu' | 'playing'>('menu');
   const [difficulty, setDifficulty] = useState<Difficulty>('Easy');
   const [maze, setMaze] = useState<Cell[][]>([]);
@@ -89,7 +88,7 @@ export default function App() {
 
   const { w, h } = DIFFICULTY_MAP[difficulty];
   const maxCellWidth = windowSize.w / (w + 2);
-  const maxCellHeight = windowSize.h / (h + 6); // Extra padding for header/footer
+  const maxCellHeight = windowSize.h / (h + 10); // Extra padding for header/footer
   const cellSize = Math.max(10, Math.floor(Math.min(maxCellWidth, maxCellHeight)));
 
   const mazeWidth = w * cellSize;
@@ -188,14 +187,14 @@ export default function App() {
 
   const handleHelpOrHint = () => {
     if (screen === 'menu') {
-      if (hapticsEnabled) haptic.trigger('light');
-      soundManager.play('click');
+      if (hapticsEnabled) vibrate('medium');
+      soundManager.play('swipe');
       setHelpPage(0);
       setShowHelp(true);
     } else {
       if (showLevelComplete || isHintActive) return;
-      if (hapticsEnabled) haptic.trigger('medium');
-      soundManager.play('click');
+      if (hapticsEnabled) vibrate('medium');
+      soundManager.play('swipe');
       
       setIsHintActive(true);
       
@@ -246,8 +245,9 @@ export default function App() {
 
     if (path.length === 0) return;
 
+    // Feedback for the entire move action
     soundManager.play('swipe');
-    if (hapticsEnabled) haptic.trigger('light');
+    if (hapticsEnabled) vibrate('heavy');
 
     const newPos = path[path.length - 1];
 
@@ -271,7 +271,7 @@ export default function App() {
     });
 
     if (newPos.x === goalPos.x && newPos.y === goalPos.y) {
-      if (hapticsEnabled) haptic.trigger('success');
+      if (hapticsEnabled) vibrate('success');
       soundManager.play('success');
       setIsPlaying(false);
       setHasSavedGame(false);
@@ -280,7 +280,7 @@ export default function App() {
         setShowLevelComplete(true);
       }, 700);
     }
-  }, [isPlaying, maze, goalPos, playerPos, haptic]);
+  }, [isPlaying, maze, goalPos, playerPos]);
 
   useEffect(() => {
     let interval: any;
@@ -293,6 +293,7 @@ export default function App() {
               setIsPlaying(false);
               setIsGameOver(true);
               soundManager.play('failure');
+              if (hapticsEnabled) vibrate('failure');
               return 0;
             }
             return t - 1;
@@ -323,7 +324,7 @@ export default function App() {
   } as React.CSSProperties;
 
   return (
-    <div className="w-full h-screen font-sans overflow-hidden relative transition-colors duration-500" style={{ ...cssVars, backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text-main)' }}>
+    <div className="w-full h-[100dvh] font-sans overflow-hidden relative transition-colors duration-500" style={{ ...cssVars, backgroundColor: 'var(--theme-bg)', color: 'var(--theme-text-main)' }}>
       <BackgroundMaze 
         cellSize={cellSize} 
         difficulty={difficulty} 
@@ -337,7 +338,7 @@ export default function App() {
         <ThemeSelector currentTheme={theme} onSelectTheme={setTheme} isDark={isDark} onToggleDark={() => setIsDark(!isDark)} hapticsEnabled={hapticsEnabled} />
       </div>
 
-      <div className="absolute bottom-8 flex items-center justify-center w-full z-30 pointer-events-none">
+      <div className="absolute bottom-10 sm:bottom-16 flex items-center justify-center w-full z-30 pointer-events-none pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center gap-2 px-4 py-1.5 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full shadow-sm pointer-events-auto" style={{ backdropFilter: 'blur(4px)' }}>
           <motion.button 
             whileTap={{ scale: 0.9 }}
@@ -349,7 +350,7 @@ export default function App() {
           <div className="w-px h-6 bg-[var(--theme-player)] opacity-30 mx-1" />
           <motion.button 
             whileTap={{ scale: 0.9 }}
-            onClick={() => { if (hapticsEnabled) haptic.trigger('light'); soundManager.play('click'); setShowSettings(true); }}
+            onClick={() => { if (hapticsEnabled) vibrate('medium'); soundManager.play('swipe'); setShowSettings(true); }}
             className="p-2 text-[var(--theme-player)] hover:opacity-80 transition-colors"
           >
             <Menu size={22} />
@@ -428,7 +429,11 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={closeHelp}
+            onClick={() => {
+              if (hapticsEnabled) vibrate('medium');
+              soundManager.play('swipe');
+              closeHelp();
+            }}
             className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--theme-bg)]/70 p-6 cursor-pointer"
           >
             <motion.div 
@@ -496,8 +501,8 @@ export default function App() {
               {/* Pagination Dots */}
               <div className="flex items-center justify-center w-full mt-8 px-4">
                 <div className="flex gap-2">
-                  <button onClick={() => setHelpPage(0)} className={`w-2 h-2 rounded-full transition-colors ${helpPage === 0 ? 'bg-[var(--theme-player)]' : 'bg-[var(--theme-text-muted)] opacity-30'}`} />
-                  <button onClick={() => setHelpPage(1)} className={`w-2 h-2 rounded-full transition-colors ${helpPage === 1 ? 'bg-[var(--theme-player)]' : 'bg-[var(--theme-text-muted)] opacity-30'}`} />
+                  <button onClick={() => { if (hapticsEnabled) vibrate('medium'); soundManager.play('swipe'); setHelpPage(0); }} className={`w-2 h-2 rounded-full transition-colors ${helpPage === 0 ? 'bg-[var(--theme-player)]' : 'bg-[var(--theme-text-muted)] opacity-30'}`} />
+                  <button onClick={() => { if (hapticsEnabled) vibrate('medium'); soundManager.play('swipe'); setHelpPage(1); }} className={`w-2 h-2 rounded-full transition-colors ${helpPage === 1 ? 'bg-[var(--theme-player)]' : 'bg-[var(--theme-text-muted)] opacity-30'}`} />
                 </div>
               </div>
 
@@ -515,8 +520,8 @@ export default function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={() => {
-              if (hapticsEnabled) haptic.trigger('light');
-              soundManager.play('click');
+              if (hapticsEnabled) vibrate('medium');
+              soundManager.play('swipe');
               setShowSettings(false);
             }}
             className="absolute inset-0 z-[60] flex items-center justify-center bg-white/70 p-6 cursor-pointer"
@@ -536,10 +541,10 @@ export default function App() {
                   <span className="text-lg font-medium text-[var(--theme-player)]">Sound</span>
                   <button 
                     onClick={() => {
-                      if (hapticsEnabled) haptic.trigger('light');
+                      if (hapticsEnabled) vibrate('medium');
                       setSoundEnabled(!soundEnabled);
                       if (!soundEnabled) {
-                        setTimeout(() => soundManager.play('click'), 10);
+                        setTimeout(() => soundManager.play('swipe'), 10);
                       }
                     }}
                     className="w-14 h-8 flex items-center rounded-full p-1 transition-all border-2 bg-[var(--theme-ui-bg)] border-[var(--theme-player)] hover:bg-[var(--theme-ui-hover)]"
@@ -560,8 +565,8 @@ export default function App() {
                     onClick={() => {
                       const next = !hapticsEnabled;
                       setHapticsEnabled(next);
-                      if (next) haptic.trigger('light');
-                      soundManager.play('click');
+                      if (next) vibrate('medium');
+                      soundManager.play('swipe');
                     }}
                     className="w-14 h-8 flex items-center rounded-full p-1 transition-all border-2 bg-[var(--theme-ui-bg)] border-[var(--theme-player)] hover:bg-[var(--theme-ui-hover)]"
                   >

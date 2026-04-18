@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Palette, Moon, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useWebHaptics } from 'web-haptics/react';
+import { vibrate } from '../utils/vibrate';
+import { soundManager } from '../utils/sounds';
 import { ThemeId } from '../utils/themes';
 
 export const THEMES: { id: ThemeId; color: string }[] = [
@@ -20,7 +21,6 @@ interface ThemeSelectorProps {
 }
 
 export function ThemeSelector({ currentTheme, onSelectTheme, isDark, onToggleDark, hapticsEnabled = true }: ThemeSelectorProps) {
-  const haptic = useWebHaptics();
   const [isThemeOpen, setIsThemeOpen] = useState(false);
 
   return (
@@ -31,7 +31,8 @@ export function ThemeSelector({ currentTheme, onSelectTheme, isDark, onToggleDar
       <motion.button 
         whileTap={{ scale: 0.9 }}
         onClick={() => {
-          if (hapticsEnabled) haptic.trigger('selection');
+          if (hapticsEnabled) vibrate('heavy');
+          soundManager.play('swipe');
           setIsThemeOpen(!isThemeOpen);
         }}
         className={`w-[38px] h-[38px] flex items-center justify-center shrink-0 text-[var(--theme-player)] hover:opacity-80`}
@@ -53,7 +54,8 @@ export function ThemeSelector({ currentTheme, onSelectTheme, isDark, onToggleDar
                 <motion.button
                   key={theme.id}
                   onClick={() => {
-                    if (hapticsEnabled) haptic.trigger('light');
+                    if (hapticsEnabled) vibrate('heavy');
+                    soundManager.play('swipe');
                     onSelectTheme(theme.id);
                   }}
                   initial={{ scale: 0 }}
@@ -72,7 +74,8 @@ export function ThemeSelector({ currentTheme, onSelectTheme, isDark, onToggleDar
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => {
-                  if (hapticsEnabled) haptic.trigger('light');
+                  if (hapticsEnabled) vibrate('heavy');
+                  soundManager.play('swipe');
                   onToggleDark();
                 }}
                 initial={{ scale: 0 }}

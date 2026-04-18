@@ -18,7 +18,7 @@ class SoundManager {
     return gain;
   }
 
-  play(name: 'swipe' | 'success' | 'failure' | 'click') {
+  play(name: 'swipe' | 'success' | 'failure') {
     if (this.muted) return;
     this.init();
     if (!this.ctx) return;
@@ -28,79 +28,72 @@ class SoundManager {
 
     switch (name) {
       case 'swipe': {
-        // Muted, light click/swipe
+        // Soft, consistent sine bip
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(600, now);
-        osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(330, now + 0.08);
         
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.03, now + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        gain.gain.linearRampToValueAtTime(0.25, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
         
         osc.connect(gain).connect(this.ctx.destination);
         osc.start();
-        osc.stop(now + 0.05);
+        osc.stop(now + 0.08);
         break;
       }
       case 'success': {
-        // Very muted, warm "bloop" (two-tone ascending)
-        const osc = this.ctx.createOscillator();
+        // Gentle soft chord (ascending)
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.type = 'sine';
         
-        osc.frequency.setValueAtTime(300, now);
-        osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+        osc1.type = 'sine';
+        osc2.type = 'sine';
+        
+        osc1.frequency.setValueAtTime(330, now);
+        osc2.frequency.setValueAtTime(440, now);
         
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.05, now + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        gain.gain.linearRampToValueAtTime(0.3, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
         
-        const filter = this.ctx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 600;
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.ctx.destination);
         
-        osc.connect(filter).connect(gain).connect(this.ctx.destination);
-        osc.start();
-        osc.stop(now + 0.2);
+        osc1.start(now);
+        osc2.start(now + 0.1);
+        osc1.stop(now + 0.5);
+        osc2.stop(now + 0.5);
         break;
       }
       case 'failure': {
-        // Muted, mid-tone descending (not bassy)
-        const osc = this.ctx.createOscillator();
+        // Gentle soft chord (descending)
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(400, now);
-        osc.frequency.exponentialRampToValueAtTime(250, now + 0.4);
+        
+        osc1.type = 'sine';
+        osc2.type = 'sine';
+        
+        osc1.frequency.setValueAtTime(220, now);
+        osc2.frequency.setValueAtTime(165, now);
         
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.05, now + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        gain.gain.linearRampToValueAtTime(0.3, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
         
-        const filter = this.ctx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 800;
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.ctx.destination);
         
-        osc.connect(filter).connect(gain).connect(this.ctx.destination);
-        osc.start();
-        osc.stop(now + 0.4);
-        break;
-      }
-      case 'click': {
-        // Subtle tick
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, now);
-        
-        gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.03, now + 0.005);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-        
-        osc.connect(gain).connect(this.ctx.destination);
-        osc.start();
-        osc.stop(now + 0.05);
+        osc1.start(now);
+        osc2.start(now + 0.1);
+        osc1.stop(now + 0.6);
+        osc2.stop(now + 0.6);
         break;
       }
     }

@@ -4,7 +4,7 @@ import { generateMaze } from '../utils/maze';
 import { soundManager } from '../utils/sounds';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useWebHaptics } from 'web-haptics/react';
+import { vibrate } from '../utils/vibrate';
 
 interface MenuScreenProps {
   difficulty: Difficulty;
@@ -16,16 +16,14 @@ interface MenuScreenProps {
 }
 
 export function MenuScreen({ difficulty, setDifficulty, onNewGame, onResume, hasSavedGame, hapticsEnabled }: MenuScreenProps) {
-  const haptic = useWebHaptics();
-
   const difficulties: Difficulty[] = ['Easy', 'Medium', 'Hard', 'Expert'];
   
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
     const idx = difficulties.indexOf(difficulty);
     if (idx > 0) {
-      if (hapticsEnabled) haptic.trigger('selection');
-      soundManager.play('click');
+      if (hapticsEnabled) vibrate('medium');
+      soundManager.play('swipe');
       setDifficulty(difficulties[idx - 1]);
     }
   };
@@ -34,21 +32,21 @@ export function MenuScreen({ difficulty, setDifficulty, onNewGame, onResume, has
     e.stopPropagation();
     const idx = difficulties.indexOf(difficulty);
     if (idx < difficulties.length - 1) {
-      if (hapticsEnabled) haptic.trigger('selection');
-      soundManager.play('click');
+      if (hapticsEnabled) vibrate('medium');
+      soundManager.play('swipe');
       setDifficulty(difficulties[idx + 1]);
     }
   };
 
   const handleNewGame = () => {
-    if (hapticsEnabled) haptic.trigger('medium');
-    soundManager.play('click');
+    if (hapticsEnabled) vibrate('heavy');
+    soundManager.play('swipe');
     onNewGame();
   };
 
   const handleResume = () => {
-    if (hapticsEnabled) haptic.trigger('medium');
-    soundManager.play('click');
+    if (hapticsEnabled) vibrate('heavy');
+    soundManager.play('swipe');
     onResume();
   };
 

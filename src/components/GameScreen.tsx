@@ -3,7 +3,7 @@ import { Cell, Position } from '../types';
 import { soundManager } from '../utils/sounds';
 import { Play, Home, X, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useWebHaptics } from 'web-haptics/react';
+import { vibrate } from '../utils/vibrate';
 
 interface GameScreenProps {
   maze: Cell[][];
@@ -36,7 +36,6 @@ export function GameScreen({
   offsetX, offsetY, showLevelComplete, isTimeTrial, isGameOver,
   onNextMaze, onRetry, onStartTimeTrial, onStartNormal, onBackToMenu, hapticsEnabled, isSuccessAnim, hintPath, isHintActive
 }: GameScreenProps) {
-  const haptic = useWebHaptics();
   const [showPausePopup, setShowPausePopup] = useState(false);
 
   const formatTime = (seconds: number) => {
@@ -108,8 +107,8 @@ export function GameScreen({
           <motion.button 
             whileTap={{ scale: 0.9 }}
             onClick={() => {
-              if (hapticsEnabled) haptic.trigger('medium');
-              soundManager.play('click');
+              if (hapticsEnabled) vibrate('medium');
+              soundManager.play('swipe');
               setShowPausePopup(true);
             }}
             className={`text-xl font-mono tracking-widest px-6 h-[42px] flex items-center justify-center bg-[var(--theme-ui-bg)] border-2 rounded-full transition-colors shadow-sm ${
@@ -237,8 +236,8 @@ export function GameScreen({
               <div className="flex flex-col w-full gap-4">
                 <button 
                   onClick={() => {
-                    if (hapticsEnabled) haptic.trigger('medium');
-                    soundManager.play('click');
+                    if (hapticsEnabled) vibrate('medium');
+                    soundManager.play('swipe');
                     onNextMaze();
                   }}
                   className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-all active:scale-[0.98]"
@@ -248,8 +247,8 @@ export function GameScreen({
                 </button>
                 <button 
                   onClick={() => {
-                    if (hapticsEnabled) haptic.trigger('medium');
-                    soundManager.play('click');
+                    if (hapticsEnabled) vibrate('heavy');
+                    soundManager.play('swipe');
                     onBackToMenu();
                   }}
                   className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-all active:scale-[0.98]"
@@ -272,8 +271,8 @@ export function GameScreen({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={() => {
-              if (hapticsEnabled) haptic.trigger('light');
-              soundManager.play('click');
+              if (hapticsEnabled) vibrate('light');
+              soundManager.play('swipe');
               setShowPausePopup(false);
             }}
             className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--theme-bg)]/70 p-6 cursor-pointer"
@@ -294,8 +293,8 @@ export function GameScreen({
                 <motion.button 
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
-                    if (hapticsEnabled) haptic.trigger('medium');
-                    soundManager.play('click');
+                    if (hapticsEnabled) vibrate('heavy');
+                    soundManager.play('swipe');
                     onRetry();
                     setShowPausePopup(false);
                   }}
@@ -306,8 +305,8 @@ export function GameScreen({
                 <motion.button 
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
-                    if (hapticsEnabled) haptic.trigger('medium');
-                    soundManager.play('click');
+                    if (hapticsEnabled) vibrate('heavy');
+                    soundManager.play('swipe');
                     onNextMaze();
                     setShowPausePopup(false);
                   }}
@@ -318,8 +317,8 @@ export function GameScreen({
                 <motion.button 
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
-                    if (hapticsEnabled) haptic.trigger('medium');
-                    soundManager.play('click');
+                    if (hapticsEnabled) vibrate('medium');
+                    soundManager.play('swipe');
                     if (isTimeTrial) {
                       onStartNormal();
                     } else {
@@ -334,8 +333,8 @@ export function GameScreen({
                 <motion.button 
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
-                    if (hapticsEnabled) haptic.trigger('medium');
-                    soundManager.play('click');
+                    if (hapticsEnabled) vibrate('heavy');
+                    soundManager.play('swipe');
                     onBackToMenu();
                     setShowPausePopup(false);
                   }}
@@ -374,8 +373,8 @@ export function GameScreen({
               <div className="flex flex-col w-full gap-4">
                 <button 
                   onClick={() => {
-                    if (hapticsEnabled) haptic.trigger('medium');
-                    soundManager.play('click');
+                    if (hapticsEnabled) vibrate('heavy');
+                    soundManager.play('swipe');
                     onRetry();
                   }}
                   className="flex items-center justify-center gap-2 w-full py-4 bg-white/20 dark:bg-black/20 border-2 border-red-200 dark:border-red-800 rounded-full text-red-900 dark:text-red-100 font-semibold hover:bg-white/40 dark:hover:bg-black/40 transition-all active:scale-[0.98]"
@@ -384,8 +383,8 @@ export function GameScreen({
                 </button>
                 <button 
                   onClick={() => {
-                    if (hapticsEnabled) haptic.trigger('medium');
-                    soundManager.play('click');
+                    if (hapticsEnabled) vibrate('heavy');
+                    soundManager.play('swipe');
                     onNextMaze();
                   }}
                   className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-all active:scale-[0.98]"
@@ -394,8 +393,8 @@ export function GameScreen({
                 </button>
                 <button 
                   onClick={() => {
-                    if (hapticsEnabled) haptic.trigger('medium');
-                    soundManager.play('click');
+                    if (hapticsEnabled) vibrate('heavy');
+                    soundManager.play('swipe');
                     onBackToMenu();
                   }}
                   className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-all active:scale-[0.98]"
