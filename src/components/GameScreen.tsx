@@ -99,8 +99,8 @@ export function GameScreen({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Top Bar */}
-      <div className="absolute top-4 right-4 sm:top-8 sm:right-8 z-20 pointer-events-none">
+      {/* Bottom Bar Timer */}
+      <div className="absolute bottom-10 sm:bottom-16 left-0 right-0 z-20 pointer-events-none flex justify-center pb-[env(safe-area-inset-bottom)]">
         <div className="pointer-events-auto flex items-center">
           <div 
             className={`text-xl font-mono tracking-widest px-6 h-[42px] flex items-center justify-center bg-[var(--theme-ui-bg)] border-2 rounded-full transition-colors shadow-sm ${

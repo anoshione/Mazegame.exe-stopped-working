@@ -336,25 +336,28 @@ export default function App() {
       </div>
 
       <div 
-        className={`absolute bottom-10 sm:bottom-16 flex items-center justify-center w-full z-30 pointer-events-none pb-[env(safe-area-inset-bottom)] transition-all duration-300 ${(showLevelComplete || isGameOver) ? 'opacity-25 grayscale' : 'opacity-100'}`}
+        className={`absolute top-4 right-4 sm:top-8 sm:right-8 z-30 flex items-center transition-all duration-300 ${(showLevelComplete || isGameOver) ? 'opacity-0 pointer-events-none translate-y-[-10px]' : 'opacity-100 pointer-events-auto translate-y-0'}`}
       >
-        <div className={`flex items-center gap-2 px-4 py-1.5 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full shadow-sm ${(showLevelComplete || isGameOver) ? 'pointer-events-none' : 'pointer-events-auto'}`} style={{ backdropFilter: 'blur(4px)' }}>
+        <div 
+          className="flex items-center gap-1.5 h-[42px] px-1.5 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full shadow-sm" 
+          style={{ backdropFilter: 'blur(4px)' }}
+        >
           <motion.button 
             whileTap={{ scale: 0.9 }}
             onClick={handleHelpOrHint}
             disabled={showLevelComplete || isGameOver}
-            className="p-2 text-[var(--theme-player)] hover:opacity-80 transition-colors disabled:pointer-events-none"
+            className="w-[38px] h-[38px] flex items-center justify-center text-[var(--theme-player)] hover:opacity-80 transition-opacity disabled:opacity-50"
           >
-            <Lightbulb size={22} />
+            <Lightbulb size={20} />
           </motion.button>
-          <div className="w-px h-6 bg-[var(--theme-player)] opacity-30 mx-1" />
+          <div className="w-px h-5 bg-[var(--theme-player)] opacity-30 mx-0.5" />
           <motion.button 
             whileTap={{ scale: 0.9 }}
             onClick={() => { if (hapticsEnabled) vibrate('medium'); soundManager.play('swipe'); setShowSettings(true); }}
             disabled={showLevelComplete || isGameOver}
-            className="p-2 text-[var(--theme-player)] hover:opacity-80 transition-colors disabled:pointer-events-none"
+            className="w-[38px] h-[38px] flex items-center justify-center text-[var(--theme-player)] hover:opacity-80 transition-opacity disabled:opacity-50"
           >
-            <Menu size={22} />
+            <Menu size={20} />
           </motion.button>
         </div>
       </div>
@@ -408,6 +411,8 @@ export default function App() {
                 setScreen('menu');
                 setIsPlaying(false);
                 setIsSuccessAnim(false);
+                setShowLevelComplete(false);
+                setIsGameOver(false);
                 if (window.history.state?.screen === 'playing') {
                   window.history.replaceState({ screen: 'menu' }, '');
                 }
