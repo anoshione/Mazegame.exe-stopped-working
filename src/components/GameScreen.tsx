@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Cell, Position } from '../types';
 import { soundManager } from '../utils/sounds';
-import { Play, Home, X, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { vibrate } from '../utils/vibrate';
 
@@ -238,7 +237,6 @@ export function GameScreen({
                   }}
                   className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-all active:scale-[0.98]"
                 >
-                  <Play size={20} />
                   Next Maze
                 </button>
                 <button 
@@ -249,7 +247,6 @@ export function GameScreen({
                   }}
                   className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-all active:scale-[0.98]"
                 >
-                  <Home size={20} />
                   Main Menu
                 </button>
               </div>
@@ -309,7 +306,6 @@ export function GameScreen({
                   }}
                   className="flex items-center justify-center gap-2 w-full py-4 bg-[var(--theme-ui-bg)] border-2 border-[var(--theme-player)] rounded-full text-[var(--theme-player)] font-semibold hover:bg-[var(--theme-ui-hover)] transition-all active:scale-[0.98]"
                 >
-                  <Home size={20} />
                   Main Menu
                 </button>
               </div>
