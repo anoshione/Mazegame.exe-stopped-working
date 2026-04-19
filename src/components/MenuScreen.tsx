@@ -72,7 +72,7 @@ export function MenuScreen({ difficulty, setDifficulty, onNewGame, onResume, has
           animate={{ marginBottom: hasSavedGame ? 24 : 48 }}
           className="text-6xl sm:text-7xl font-black tracking-widest text-[var(--theme-text-main)]"
         >
-          MAZE
+          ESCAPE
         </motion.h1>
 
         {/* Decorative Grid Icon */}
