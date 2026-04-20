@@ -55,36 +55,31 @@ export function GameScreen({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onMove, showLevelComplete]);
 
-  const [touchStart, setTouchStart] = useState<{x: number, y: number} | null>(null);
+  const [gestureStart, setGestureStart] = useState<{x: number, y: number} | null>(null);
   
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (showLevelComplete) return;
-    setTouchStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+  const handleGestureStart = (x: number, y: number) => {
+    if (showLevelComplete || isGameOver) return;
+    setGestureStart({ x, y });
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (showLevelComplete || !touchStart) return;
-    const touchEnd = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-    const dx = touchEnd.x - touchStart.x;
-    const dy = touchEnd.y - touchStart.y;
+  const handleGestureEnd = (x: number, y: number) => {
+    if (showLevelComplete || isGameOver || !gestureStart) {
+      setGestureStart(null);
+      return;
+    }
+    const dx = x - gestureStart.x;
+    const dy = y - gestureStart.y;
     
-    let swiped = false;
     if (Math.abs(dx) > Math.abs(dy)) {
       if (Math.abs(dx) > 30) {
         onMove(dx > 0 ? 1 : -1, 0);
-        swiped = true;
       }
     } else {
       if (Math.abs(dy) > 30) {
         onMove(0, dy > 0 ? 1 : -1);
-        swiped = true;
       }
     }
-    
-    if (swiped) {
-      // Handled in App.tsx slide function
-    }
-    setTouchStart(null);
+    setGestureStart(null);
   };
 
   if (!maze || maze.length === 0) return null;
@@ -94,9 +89,11 @@ export function GameScreen({
 
   return (
     <div 
-      className="h-full w-full relative overflow-hidden"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      className="h-full w-full relative overflow-hidden touch-none"
+      onTouchStart={(e) => handleGestureStart(e.touches[0].clientX, e.touches[0].clientY)}
+      onTouchEnd={(e) => handleGestureEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY)}
+      onMouseDown={(e) => handleGestureStart(e.clientX, e.clientY)}
+      onMouseUp={(e) => handleGestureEnd(e.clientX, e.clientY)}
     >
       {/* Bottom Bar Timer */}
       <div className="absolute bottom-10 sm:bottom-16 left-0 right-0 z-20 pointer-events-none flex justify-center pb-[env(safe-area-inset-bottom)]">
